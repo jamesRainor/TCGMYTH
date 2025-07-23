@@ -3,24 +3,47 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
-const SECRET = process.env.SEED_SECRET || "CAMBIA-ESTO";
+const SECRET = process.env.SEED_SECRET || "";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  if (searchParams.get("key") !== SECRET) {
+  const key = new URL(req.url).searchParams.get("key");
+  if (key !== SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     // Admin
-    const adminEmail = process.env.ADMIN_EMAIL!;
-    const adminPass = process.env.ADMIN_PASSWORD || "supersegura";
-    const hash = await bcrypt.hash(adminPass, 10);
+    const email = process.env.ADMIN_EMAIL!;
+    const password = process.env.ADMIN_PASSWORD || "admin12345";
+    const hash = await bcrypt.hash(password, 10);
 
     await prisma.user.upsert({
-      where: { email: adminEmail },
+      where: { email },
       update: { isAdmin: true, password: hash },
-      create: { email: adminEmail, isAdmin: true, password: hash, name: "Admin" },
+      create: { email, password: hash, isAdmin: true, name: "Admin" }
+    });
+
+    // Slides demo
+    await prisma.heroSlide.createMany({
+      data: [
+        {
+          imageUrl: "/placeholders/slide1.jpg",
+          title: "Novedades de Agosto",
+          subtitle: "Reserva tu set antes de que vuele",
+          ctaLabel: "Ver pre-orders",
+          ctaHref: "/productos?preorder=true",
+          position: 0
+        },
+        {
+          imageUrl: "/placeholders/slide2.jpg",
+          title: "TCG Myths Blog",
+          subtitle: "Noticias y artículos",
+          ctaLabel: "Leer ahora",
+          ctaHref: "/blog",
+          position: 1
+        }
+      ],
+      skipDuplicates: true
     });
 
     // Productos demo
@@ -33,6 +56,7 @@ export async function GET(req: Request) {
           priceCents: 12999,
           stock: 20,
           imageUrl: "/placeholders/box1.jpg",
+          published: true
         },
         {
           name: "Carta Promo Mítica",
@@ -40,8 +64,8 @@ export async function GET(req: Request) {
           description: "Edición limitada, foil.",
           priceCents: 2999,
           stock: 0,
-          published: true,
           imageUrl: "/placeholders/card1.jpg",
+          published: true
         },
         {
           name: "Pre-order: Set Especial",
@@ -55,37 +79,16 @@ export async function GET(req: Request) {
           preorderEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)),
           preorderCap: 100,
           imageUrl: "/placeholders/preorder.jpg",
-        },
+          published: true
+        }
       ],
-      skipDuplicates: true,
-    });
-
-    // Slides demo
-    await prisma.heroSlide.createMany({
-      data: [
-        {
-          imageUrl: "/placeholders/slide1.jpg",
-          title: "Novedades de Agosto",
-          subtitle: "Reserva tu set antes de que vuele",
-          ctaLabel: "Ver pre-orders",
-          ctaHref: "/productos?preorder=true",
-          position: 0,
-        },
-        {
-          imageUrl: "/placeholders/slide2.jpg",
-          title: "TCG Myths Blog",
-          subtitle: "Noticias y artículos",
-          ctaLabel: "Leer ahora",
-          ctaHref: "/blog",
-          position: 1,
-        },
-      ],
+      skipDuplicates: true
     });
 
     return NextResponse.json({ ok: true, message: "Seed done ✅" });
-  } catch (e: any) {
-    console.error(e);
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (err: any) {
+    console.error(err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }
