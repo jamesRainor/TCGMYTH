@@ -7,13 +7,10 @@ const SECRET = process.env.SEED_SECRET || '';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-
-  if (req.query.key !== SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  if (req.query.key !== SECRET) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    // ADMIN
+    // Admin
     const email = process.env.ADMIN_EMAIL!;
     const pass = process.env.ADMIN_PASSWORD || 'admin12345';
     const hash = await bcrypt.hash(pass, 10);
@@ -24,12 +21,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       create: { email, password: hash, isAdmin: true, name: 'Admin' }
     });
 
-    // SLIDES demo
+    // Slides demo
     await prisma.heroSlide.createMany({
       data: [
         {
           imageUrl: '/placeholders/slide1.jpg',
-          title: 'Novedades de Agosto',
+          title: 'Novedades',
           subtitle: 'Reserva tu set antes de que vuele',
           ctaLabel: 'Ver pre-orders',
           ctaHref: '/productos?preorder=true',
@@ -37,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         {
           imageUrl: '/placeholders/slide2.jpg',
-          title: 'TCG Myths Blog',
+          title: 'Blog TCG Myths',
           subtitle: 'Noticias y artículos',
           ctaLabel: 'Leer ahora',
           ctaHref: '/blog',
@@ -47,13 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       skipDuplicates: true
     });
 
-    // PRODUCTOS demo
+    // Productos demo
     await prisma.product.createMany({
       data: [
         {
           name: 'Booster Box – Set Épico',
           slug: 'booster-box-set-epico',
-          description: 'Caja de sobres del nuevo set. Incluye 36 sobres.',
+          description: 'Caja de sobres, 36 packs.',
           priceCents: 12999,
           stock: 20,
           imageUrl: '/placeholders/box1.jpg',
@@ -62,24 +59,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         {
           name: 'Carta Promo Mítica',
           slug: 'carta-promo-mitica',
-          description: 'Edición limitada, foil.',
+          description: 'Edición limitada foil.',
           priceCents: 2999,
           stock: 0,
           imageUrl: '/placeholders/card1.jpg',
-          published: true
-        },
-        {
-          name: 'Pre-order: Set Especial',
-          slug: 'preorder-set-especial',
-          description: 'Reserva hasta el 31/08.',
-          priceCents: 14999,
-          pricePreorderCents: 12999,
-          stock: 0,
-          isPreorder: true,
-          preorderStart: new Date(),
-          preorderEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-          preorderCap: 100,
-          imageUrl: '/placeholders/preorder.jpg',
           published: true
         }
       ],
