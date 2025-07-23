@@ -1,7 +1,7 @@
+import type { Product, HeroSlide } from '@prisma/client';
 import { HeroCarousel } from '@/components/HeroCarousel';
 import { prisma } from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
-import type { Product, HeroSlide } from '@prisma/client';
 
 export default async function HomePage() {
   const slides: HeroSlide[] = await prisma.heroSlide.findMany({
