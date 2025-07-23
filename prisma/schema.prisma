@@ -1,7 +1,11 @@
+generator client {
+  provider = "prisma-client-js"
+}
 
-generator client { provider = "prisma-client-js"}
-
-datasource db {  provider = "postgresql"  url= env("DATABASE_URL")}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
 model User {
   id        String   @id @default(cuid())
@@ -16,50 +20,55 @@ model User {
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  description   String
-  priceCents    Int
-  pricePreorderCents Int?
-  stock         Int      @default(0)
-  imageUrl      String?
-  published     Boolean  @default(true)
-  isPreorder    Boolean  @default(false)
-  preorderStart DateTime?
-  preorderEnd   DateTime?
-  preorderCap   Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  orderItems    OrderItem[]
-  waitlist      WaitlistEntry[]
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String   @unique
+  description         String
+  priceCents          Int
+  pricePreorderCents  Int?
+  stock               Int      @default(0)
+  imageUrl            String?
+  published           Boolean  @default(true)
+  isPreorder          Boolean  @default(false)
+  preorderStart       DateTime?
+  preorderEnd         DateTime?
+  preorderCap         Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  orderItems          OrderItem[]
+  waitlist            WaitlistEntry[]
 }
 
 model Order {
-  id               String   @id @default(cuid())
-  userId           String?
-  user             User?    @relation(fields: [userId], references: [id])
-  status           OrderStatus @default(PENDING)
-  totalCents       Int
-  shippingMethod   String
-  shippingAddress  Json
-  paymentProvider  String
-  paymentIntentId  String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  items            OrderItem[]
+  id              String       @id @default(cuid())
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id])
+  status          OrderStatus  @default(PENDING)
+  totalCents      Int
+  shippingMethod  String
+  shippingAddress Json
+  paymentProvider String
+  paymentIntentId String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  items           OrderItem[]
 }
 
-enum OrderStatus { PENDING PAID SHIPPED CANCELLED }
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  CANCELLED
+}
 
 model OrderItem {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   orderId    String
   productId  String
   quantity   Int
   priceCents Int
-  order      Order    @relation(fields: [orderId], references: [id])
-  product    Product  @relation(fields: [productId], references: [id])
+  order      Order   @relation(fields: [orderId], references: [id])
+  product    Product @relation(fields: [productId], references: [id])
 }
 
 model Post {
