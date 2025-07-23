@@ -30,7 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           subtitle: 'Reserva tu set antes de que vuele',
           ctaLabel: 'Ver pre-orders',
           ctaHref: '/productos?preorder=true',
-          position: 0
+          position: 0,
+          isActive: true
         },
         {
           imageUrl: '/placeholders/slide2.jpg',
@@ -38,7 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           subtitle: 'Noticias y artículos',
           ctaLabel: 'Leer ahora',
           ctaHref: '/blog',
-          position: 1
+          position: 1,
+          isActive: true
         }
       ],
       skipDuplicates: true
@@ -69,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       skipDuplicates: true
     });
 
-    res.json({ ok: true, message: 'Seed done ✅' });
+    res.status(200).json({ ok: true, message: 'Seed done ✅' });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message });
