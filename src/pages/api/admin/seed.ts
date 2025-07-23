@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.query.key !== SECRET) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    // --- Admin ---
+    // Admin
     const email = process.env.ADMIN_EMAIL!;
     const pass = process.env.ADMIN_PASSWORD || 'admin12345';
     const hash = await bcrypt.hash(pass, 10);
@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       create: { email, password: hash, isAdmin: true, name: 'Admin' }
     });
 
-    // --- Slides demo ---
+    // Slides demo
     await prisma.heroSlide.createMany({
       data: [
         {
@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       skipDuplicates: true
     });
 
-    // --- Productos demo ---
+    // Productos demo
     await prisma.product.createMany({
       data: [
         {
